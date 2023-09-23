@@ -6,7 +6,7 @@ Ros package to visualize KITTI object data, raw data, and depth prediction data 
 
 ### Data Preparation
 
-You can use this repo with either or both KITTI [object dataset](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d) and [raw dataset](https://www.cvlibs.net/datasets/kitti/raw_data.php).  The code will not raise error until the data is actually being read, so if you are using only object dataset or only raw dataset, the code will still work fine (we have a GUI to control which dataset we are using). 
+You can use this repo with either or both KITTI [object dataset](https://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d) and [raw dataset](https://www.cvlibs.net/datasets/kitti/raw_data.php).  The code will not raise error until the data is actually being read, so if you are using only object dataset or only raw dataset, the code will still work fine (the dataset selection is controlled by a FLAG in the launch file). 
 
 If you need oxts poses/odometry support for raw dataset. Please refer to this [naive method](https://gist.github.com/Owen-Liuyuxuan/27f12e15788acba76053df84a28f2291) to produce poses for every sequence. Otherwise, we will simply publish a identity transform between baselink and odom.
 
