@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+    <let name="KITTI_OBJ_DIR" value="/data/kitti_obj/training"/>
+    <let name="KITTI_RAW_DIR" value="/data/kitti_raw"/>
+    <let name="KITTI_DEPTH_DIR" value="/data/data_depth_annotated"/>
+    <let name="FLAG_KITTI_OBJ" value="false"/>
+    <let name="Image_PointCloud_Depth" value="5.0"/>
+    <let name="UPDATE_FREQUENCY" value="8.0"/>
+
+    <node pkg="ros2_dataset_bridge" exec="kitti_visualize_node" name="kitti_visualize_node" output="screen">
+        <param name="KITTI_OBJ_DIR" value="$(var KITTI_OBJ_DIR)"/>
+        <param name="KITTI_RAW_DIR" value="$(var KITTI_RAW_DIR)"/>
+        <param name="KITTI_DEPTH_DIR" value="$(var KITTI_DEPTH_DIR)"/>
+        <param name="Image_PointCloud_Depth" value="$(var Image_PointCloud_Depth)"/>
+        <param name="FLAG_KITTI_OBJ" value="$(var FLAG_KITTI_OBJ)"/>
+        <param name="UPDATE_FREQUENCY" value="$(var UPDATE_FREQUENCY)"/>
+    </node>
+    <node pkg="ros2_dataset_bridge" exec="gui_controller" name="GUI_controller_node" output="screen" respawn="false" respawn_delay="0">
+
+    </node>
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share ros2_dataset_bridge)/rviz/kitti.rviz"/>
+</launch>

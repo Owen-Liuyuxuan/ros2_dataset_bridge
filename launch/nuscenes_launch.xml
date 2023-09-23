@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <let name="NUSCENES_DIR" value="/data/nuscene"/>
+    <let name="NUSCENES_VER" value="v1.0-trainval"/>
+    <let name="UPDATE_FREQUENCY" value="4.0"/>
+
+    <node pkg="ros2_dataset_bridge" exec="nuscenes_visualize_node" name="nuscenes_visualize_node" output="screen">
+        <param name="NUSCENES_DIR" value="$(var NUSCENES_DIR)"/>
+        <param name="NUSCENES_VER" value="$(var NUSCENES_VER)"/>
+        <param name="UPDATE_FREQUENCY" value="$(var UPDATE_FREQUENCY)"/>
+    </node>
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share ros2_dataset_bridge)/rviz/nuscenes.rviz"/>
+    <node pkg="ros2_dataset_bridge" exec="gui_controller" name="GUI_controller_node" output="screen" respawn="false" respawn_delay="0">
+
+    </node>
+</launch>
