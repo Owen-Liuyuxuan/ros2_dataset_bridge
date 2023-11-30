@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="DDAD_JSON_PATH" default="/data/ddad_train_val/ddad.json"/>
+    <arg name="UPDATE_FREQUENCY" default="8.0"/>
+
+    <node pkg="ros2_dataset_bridge" exec="dgp_visualize_node" name="dgp_visualize_node" output="screen">
+        <param name="DDAD_JSON_PATH" value="$(var DDAD_JSON_PATH)"/>
+        <param name="UPDATE_FREQUENCY" value="$(var UPDATE_FREQUENCY)"/>
+    </node>
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share ros2_dataset_bridge)/rviz/dgp.rviz"/>
+    <node pkg="ros2_dataset_bridge" exec="gui_controller" name="GUI_controller_node" output="screen" respawn="false" respawn_delay="0">
+
+    </node>
+</launch>

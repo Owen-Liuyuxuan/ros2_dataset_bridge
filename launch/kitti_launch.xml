@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-    <let name="KITTI_OBJ_DIR" value="/data/kitti_obj/training"/>
-    <let name="KITTI_RAW_DIR" value="/data/kitti_raw"/>
-    <let name="KITTI_DEPTH_DIR" value="/data/data_depth_annotated"/>
-    <let name="FLAG_KITTI_OBJ" value="false"/>
-    <let name="Image_PointCloud_Depth" value="5.0"/>
-    <let name="UPDATE_FREQUENCY" value="8.0"/>
+    <arg name="KITTI_OBJ_DIR" default="/data/kitti_obj/training"/>
+    <arg name="KITTI_RAW_DIR" default="/data/kitti_raw"/>
+    <arg name="KITTI_DEPTH_DIR" default="/data/data_depth_annotated"/>
+    <arg name="FLAG_KITTI_OBJ" default="false"/>
+    <arg name="Image_PointCloud_Depth" default="5.0"/>
+    <arg name="UPDATE_FREQUENCY" default="8.0"/>
 
     <node pkg="ros2_dataset_bridge" exec="kitti_visualize_node" name="kitti_visualize_node" output="screen">
         <param name="KITTI_OBJ_DIR" value="$(var KITTI_OBJ_DIR)"/>

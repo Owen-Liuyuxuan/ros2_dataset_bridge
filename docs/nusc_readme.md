@@ -19,7 +19,7 @@ ros2 launch ros2_dataset_bridge nuscenes_launch.xml
 - [x] Six cameras.
 - [x] LiDARs.
 - [x] Ground truth bounding boxes.
-- [x] Pose and TF-trees (world, odom, base_link and sensors).
+- [x] TF-trees (world, odom, base_link and sensors).
 - [x] GUI control & ROS topic control.
 - [ ] Nuscenes sweeps support. (the images / lidar not synchronized well)
 - [ ] RADARs.

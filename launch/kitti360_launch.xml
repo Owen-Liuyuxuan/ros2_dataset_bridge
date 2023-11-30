@@ -1,12 +1,16 @@
 <?xml version="1.0"?>
 <launch>
-    <let name="KITTI360_RAW_DIR" value="/data/KITTI-360"/>
-    <let name="UPDATE_FREQUENCY" value="8.0"/>
+    <arg name="KITTI360_RAW_DIR" default="/data/KITTI-360"/>
+    <arg name="UPDATE_FREQUENCY" default="8.0"/>
+    <arg name="PUBLISH_FISHEYE" default="false"/>
+    <arg name="PUBLISH_LIDAR" default="false"/>
 
     <node pkg="ros2_dataset_bridge" exec="kitti360_visualize_node" name="kitti360_visualize_node" output="screen">
         <param name="KITTI360_RAW_DIR" value="$(var KITTI360_RAW_DIR)"/>
         <param name="UPDATE_FREQUENCY" value="$(var UPDATE_FREQUENCY)"/>
         <param name="Image_PointCloud_Depth" value="3.0"/>
+        <param name="PUBLISH_FISHEYE" value="$(var PUBLISH_FISHEYE)"/>
+        <param name="PUBLISH_LIDAR" value="$(var PUBLISH_LIDAR)"/>
     </node>
     <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share ros2_dataset_bridge)/rviz/kitti360.rviz"/>
     <node pkg="ros2_dataset_bridge" exec="gui_controller" name="GUI_controller_node" output="screen" respawn="false" respawn_delay="0">

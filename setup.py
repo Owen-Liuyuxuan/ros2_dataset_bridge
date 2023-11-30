@@ -14,6 +14,8 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name, 'rviz'), [os.path.join('rviz', 'kitti360.rviz'), 
                                                       os.path.join('rviz', 'nuscenes.rviz'),
+                                                      os.path.join('rviz', 'image_dir.rviz'),
+                                                      os.path.join('rviz', 'dgp.rviz'),
                                                       os.path.join('rviz', 'kitti.rviz')]),
     ],
     install_requires=['setuptools'],
@@ -26,6 +28,8 @@ setup(
     entry_points={
         'console_scripts': [
             'kitti360_visualize_node = ros2_dataset_bridge.kitti360_visualize_node:main',
+            'dgp_visualize_node = ros2_dataset_bridge.dgp_visualize_node:main',
+            'image_dir_visualize_node = ros2_dataset_bridge.image_dir_node:main',
             'kitti_visualize_node = ros2_dataset_bridge.kitti_visualize_node:main',
             'nuscenes_visualize_node = ros2_dataset_bridge.nuscenes_visualize_node:main',
             'gui_controller = ros2_dataset_bridge.gui_controller_node:main',

@@ -27,10 +27,15 @@ class Kitti360VisualizeNode(object):
         self.ros_interface.declare_parameter("KITTI360_RAW_DIR", "")
         self.ros_interface.declare_parameter("Image_PointCloud_Depth", 5.0)
         self.ros_interface.declare_parameter("UPDATE_FREQUENCY", 8.0)
+        self.ros_interface.declare_parameter("PUBLISH_FISHEYE", True)
+        self.ros_interface.declare_parameter("PUBLISH_LIDAR", True)
 
         self.KITTI360_raw_dir = self.ros_interface.get_parameter("KITTI360_RAW_DIR").get_parameter_value().string_value
         self.image_pc_depth   = self.ros_interface.get_parameter("Image_PointCloud_Depth").get_parameter_value().double_value
         self.update_frequency = self.ros_interface.get_parameter("UPDATE_FREQUENCY").get_parameter_value().double_value
+        self.publish_fisheye_flag = self.ros_interface.get_parameter("PUBLISH_FISHEYE").get_parameter_value().bool_value
+        self.publish_lidar_flag = self.ros_interface.get_parameter("PUBLISH_LIDAR").get_parameter_value().bool_value
+
         print(f"update_frequency={self.update_frequency}")
         self.index = 0
         self.published = False
@@ -38,7 +43,7 @@ class Kitti360VisualizeNode(object):
         self.pause = False
         self.stop = True
 
-        self.meta_dict = kitti360_utils.get_files(self.KITTI360_raw_dir, self.index)
+        self.meta_dict = kitti360_utils.get_files(self.KITTI360_raw_dir, self.index, self.publish_fisheye_flag)
 
         self.ros_interface.create_timer(1.0 / self.update_frequency, self.publish_callback)
 
@@ -61,7 +66,7 @@ class Kitti360VisualizeNode(object):
     def index_callback(self, msg):
         self.index = msg.data
         self.sequence_index = 0
-        self.meta_dict = kitti360_utils.get_files(self.KITTI360_raw_dir, self.index)
+        self.meta_dict = kitti360_utils.get_files(self.KITTI360_raw_dir, self.index, self.publish_fisheye_flag)
         self.publish_callback()
 
     def publish_callback(self):
@@ -87,14 +92,17 @@ class Kitti360VisualizeNode(object):
         T_cam2velo = meta_dict["calib"]["T_cam2velo"]
         T_image0 = meta_dict["calib"]["cam_to_pose"]["T_image0"]
         T_image1 = meta_dict["calib"]["cam_to_pose"]["T_image1"]
-        self.ros_interface.publish_transformation(np.linalg.inv(T_cam2velo), 'left_camera', 'lidar')
+        if self.publish_lidar_flag:
+            self.ros_interface.publish_transformation(np.linalg.inv(T_cam2velo), 'left_camera', 'lidar')
         self.ros_interface.publish_transformation(T_image0, 'base_link', 'left_camera')
         self.ros_interface.publish_transformation(R0_rect,  'left_camera', 'left_rect')
         self.ros_interface.publish_transformation(T_image1, 'base_link', 'right_camera')
         self.ros_interface.publish_transformation(R1_rect,  'right_camera', 'right_rect')
-        self.ros_interface.publish_transformation(meta_dict["calib"]["cam_to_pose"]["T_image2"], 'base_link', 'left_fisheye_camera')
-        self.ros_interface.publish_transformation(meta_dict["calib"]["cam_to_pose"]["T_image3"], 'base_link', 'right_fisheye_camera')
-        self.ros_interface.publish_transformation(meta_dict["poses"][self.sequence_index], "odom", "base_link")
+        if self.publish_fisheye_flag:
+            self.ros_interface.publish_transformation(meta_dict["calib"]["cam_to_pose"]["T_image2"], 'base_link', 'left_fisheye_camera')
+            self.ros_interface.publish_transformation(meta_dict["calib"]["cam_to_pose"]["T_image3"], 'base_link', 'right_fisheye_camera')
+        self.ros_interface.publish_transformation(meta_dict["poses"][self.sequence_index], "world", "base_link")
+        self.ros_interface.publish_transformation(meta_dict["poses"][0], "world", "odom")
 
         if self.pause: # if paused, all data will freeze
             return
@@ -108,19 +116,19 @@ class Kitti360VisualizeNode(object):
             right_image = cv2.imread(meta_dict["right_image"][frame_idx])
             self.ros_interface.publish_image(right_image, P1, "/kitti360/right_camera/image", frame_id="right_camera")
 
-        if meta_dict['fisheye2_image'] is not None:
+        if self.publish_fisheye_flag:
             fisheye2_image = cv2.imread(meta_dict["fisheye2_image"][frame_idx])
             self.ros_interface.publish_fisheye_image(fisheye2_image, meta_dict["calib"]['calib2'],
                                                       "/kitti360/left_fisheye_camera/image", frame_id='left_fisheye_camera')
 
-        if meta_dict['fisheye3_image'] is not None:
             fisheye3_image = cv2.imread(meta_dict["fisheye3_image"][frame_idx])
             self.ros_interface.publish_fisheye_image(fisheye3_image, meta_dict["calib"]['calib3'],
                                                       "/kitti360/right_fisheye_camera/image", frame_id='right_fisheye_camera')
 
-        point_cloud = np.fromfile(meta_dict["lidar"][frame_idx], dtype=np.float32).reshape(-1, 4)
-        #point_cloud = point_cloud[point_cloud[:, 0] > np.abs(point_cloud[:, 1]) * 0.2 ]
-        self.ros_interface.publish_point_cloud(point_cloud, "/kitti360/lidar", frame_id="lidar")
+        if self.publish_lidar_flag:
+            point_cloud = np.fromfile(meta_dict["lidar"][frame_idx], dtype=np.float32).reshape(-1, 4)
+            #point_cloud = point_cloud[point_cloud[:, 0] > np.abs(point_cloud[:, 1]) * 0.2 ]
+            self.ros_interface.publish_point_cloud(point_cloud, "/kitti360/lidar", frame_id="lidar")
         
         self.sequence_index += 1
 

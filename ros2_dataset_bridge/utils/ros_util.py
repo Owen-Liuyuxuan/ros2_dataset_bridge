@@ -392,14 +392,14 @@ class ROSInterface(Node):
         msg.header.stamp = stamp
         msg.header.frame_id = frame_id
         msg.child_frame_id = child_frame_id
-        msg.transform.translation.x = trans[0]
-        msg.transform.translation.y = trans[1]
-        msg.transform.translation.z = trans[2]
+        msg.transform.translation.x = float(trans[0])
+        msg.transform.translation.y = float(trans[1])
+        msg.transform.translation.z = float(trans[2])
 
-        msg.transform.rotation.x = quat[0]
-        msg.transform.rotation.y = quat[1]
-        msg.transform.rotation.z = quat[2]
-        msg.transform.rotation.w = quat[3]
+        msg.transform.rotation.x = float(quat[0])
+        msg.transform.rotation.y = float(quat[1])
+        msg.transform.rotation.z = float(quat[2])
+        msg.transform.rotation.w = float(quat[3])
 
         self.tf_broadcaster.sendTransform(msg)
 

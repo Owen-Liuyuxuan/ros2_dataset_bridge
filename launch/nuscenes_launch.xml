@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-    <let name="NUSCENES_DIR" value="/data/nuscene"/>
-    <let name="NUSCENES_VER" value="v1.0-trainval"/>
-    <let name="UPDATE_FREQUENCY" value="4.0"/>
+    <arg name="NUSCENES_DIR" default="/data/nuscene"/>
+    <arg name="NUSCENES_VER" default="v1.0-trainval"/>
+    <arg name="UPDATE_FREQUENCY" default="4.0"/>
 
     <node pkg="ros2_dataset_bridge" exec="nuscenes_visualize_node" name="nuscenes_visualize_node" output="screen">
         <param name="NUSCENES_DIR" value="$(var NUSCENES_DIR)"/>

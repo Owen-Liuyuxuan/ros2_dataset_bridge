@@ -156,7 +156,7 @@ def determine_date_index(pose_dir, index):
     print("Selected date time {}, total_number of date times {}".format(data_time_name, len(date_times)))
     return data_time_name
 
-def get_files(base_dir, index):
+def get_files(base_dir, index, fisheye_flag):
     """Retrieve a dictionary of filenames, including calibration(P2, P3, R, T), left_image, right_image, point_cloud, labels(could be none)
 
         if is_sequence:
@@ -195,21 +195,24 @@ def get_files(base_dir, index):
 
     cam_calib_file = os.path.join(calib_dir, "perspective.txt")
     P0, P1, R0, R1 = read_P01_from_sequence(cam_calib_file)
-    fisheye2_calib_file = os.path.join(calib_dir, "image_02.yaml")
-    calib_2 = read_fisheycalib(fisheye2_calib_file)
-    fisheye3_calib_file = os.path.join(calib_dir, "image_03.yaml")
-    calib_3 = read_fisheycalib(fisheye3_calib_file)
+    if fisheye_flag:
+        fisheye2_calib_file = os.path.join(calib_dir, "image_02.yaml")
+        calib_2 = read_fisheycalib(fisheye2_calib_file)
+        fisheye3_calib_file = os.path.join(calib_dir, "image_03.yaml")
+        calib_3 = read_fisheycalib(fisheye3_calib_file)
     velo_calib_file = os.path.join(calib_dir, "calib_cam_to_velo.txt")
-    T_cam2velo = read_T_from_sequence(velo_calib_file)
+    if os.path.isfile(velo_calib_file):
+        T_cam2velo = read_T_from_sequence(velo_calib_file)
+        output_dict["calib"]["T_cam2velo"] = T_cam2velo
     cam_extrinsic_file = os.path.join(calib_dir, "calib_cam_to_pose.txt")
     T_cam2pose = read_extrinsic_from_sequence(cam_extrinsic_file)
     output_dict["calib"]["P0"] = P0
     output_dict["calib"]["P1"] = P1
-    output_dict["calib"]["calib2"] = calib_2
-    output_dict["calib"]["calib3"] = calib_3
+    if fisheye_flag:
+        output_dict["calib"]["calib2"] = calib_2
+        output_dict["calib"]["calib3"] = calib_3
     output_dict["calib"]["T_rect02cam0"] = R0
     output_dict["calib"]["T_rect12cam1"] = R1
-    output_dict["calib"]["T_cam2velo"] = T_cam2velo
     output_dict["calib"]["cam_to_pose"] = T_cam2pose
 
     left_dir = os.path.join(data_2d_raw_dir, sequence_name, "image_00", "data_rect")
@@ -236,31 +239,31 @@ def get_files(base_dir, index):
         pointclouds.sort()
         pointclouds = [os.path.join(pc_dir, pc) for pc in pointclouds]
 
+    if fisheye_flag:
+        fisheye2_dir = os.path.join(data_2d_raw_dir, sequence_name, "image_02", "data_rgb")
+        if not os.path.isdir(fisheye2_dir):
+            fisheye2_images = None
+        else:
+            fisheye2_images = os.listdir(fisheye2_dir)
+            fisheye2_images.sort()
+            fisheye2_images = [os.path.join(fisheye2_dir, fisheye_image) for fisheye_image in fisheye2_images]
 
-    fisheye2_dir = os.path.join(data_2d_raw_dir, sequence_name, "image_02", "data_rgb")
-    if not os.path.isdir(fisheye2_dir):
-        fisheye2_images = None
-    else:
-        fisheye2_images = os.listdir(fisheye2_dir)
-        fisheye2_images.sort()
-        fisheye2_images = [os.path.join(fisheye2_dir, fisheye_image) for fisheye_image in fisheye2_images]
-
-    fisheye3_dir = os.path.join(data_2d_raw_dir, sequence_name, "image_03", "data_rgb")
-    if not os.path.isdir(fisheye3_dir):
-        fisheye3_images = None
-    else:
-        fisheye3_images = os.listdir(fisheye3_dir)
-        fisheye3_images.sort()
-        fisheye3_images = [os.path.join(fisheye3_dir, fisheye_image) for fisheye_image in fisheye3_images]
+        fisheye3_dir = os.path.join(data_2d_raw_dir, sequence_name, "image_03", "data_rgb")
+        if not os.path.isdir(fisheye3_dir):
+            fisheye3_images = None
+        else:
+            fisheye3_images = os.listdir(fisheye3_dir)
+            fisheye3_images.sort()
+            fisheye3_images = [os.path.join(fisheye3_dir, fisheye_image) for fisheye_image in fisheye3_images]
 
     poses_file = os.path.join(data_pose_dir, sequence_name, 'poses.txt') # pose mat can be generated with official matlab toolkits
     key_frames, poses = read_poses_file(poses_file)
 
     output_dict["left_image"] = left_images
     output_dict["right_image"] = right_images
-    output_dict["fisheye2_image"] = fisheye2_images
-    output_dict["fisheye3_image"] = fisheye3_images
-    output_dict["right_image"] = right_images
+    if fisheye_flag:
+        output_dict["fisheye2_image"] = fisheye2_images
+        output_dict["fisheye3_image"] = fisheye3_images
     output_dict["lidar"] = pointclouds
     output_dict["poses"] = poses
     output_dict["key_frames"] = key_frames
